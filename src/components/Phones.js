@@ -20,9 +20,9 @@ export default function Phones() {
       } catch (error) {
         setError(error);
       }
+      
+      setIsLoading(false);
     })();
-
-    setIsLoading(false);
   }, []);
 
   async function toggleDetails(phoneSelected) {
@@ -46,7 +46,11 @@ export default function Phones() {
       </div>
     );
   } else if (isLoading) {
-    return <LoadingIndicator />;
+    return (<LoadingIndicator />);
+  } else if (!isLoading && phones.length === 0) {
+    return (<div className="Phones-alert">
+      <Alert severity="info">No phones information available, please try adding a new phone through the phones API.</Alert>
+    </div>)
   } else {
     return (
       <List>
