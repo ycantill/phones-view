@@ -1,15 +1,21 @@
-import "./Phones.css";
 import { useState, useEffect } from "react";
 import List from "@material-ui/core/List";
 import Alert from "@material-ui/lab/Alert";
 import PhoneItem from "./PhoneItem";
 import LoadingIndicator from "./LoadingIndicator";
 import phonesServices from "../services/phones";
+import { createUseStyles } from 'react-jss'
 
 export default function Phones() {
   const [phones, setPhones] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const useStyles = createUseStyles({
+    PhonesAlert: {
+      marginTop: '10px'
+    }
+  });
+  const classes = useStyles();
 
   useEffect(() => {
     (async () => {
@@ -29,11 +35,12 @@ export default function Phones() {
     try {
       const phoneSelectedId = phoneSelected.id;
       const details = phoneSelected.details ? undefined : await phonesServices.getById(phoneSelectedId);
-      const phonesUpdate = phones.map((phone) => {
-        return phone.id === phoneSelectedId ? Object.assign({}, phone, { details }) : phone;
-      });
 
-      setPhones(phonesUpdate);
+      setPhones((previousPhonesState) => {
+        return previousPhonesState.map((phone) => {
+          return phone.id === phoneSelectedId ? Object.assign({}, phone, { details }) : phone;
+        })
+      });
     } catch (error) {
       console.log(error);
     }
@@ -41,14 +48,14 @@ export default function Phones() {
 
   if (error) {
     return (
-      <div className="Phones-alert">
+      <div className={classes.PhonesAlert}>
         <Alert severity="error">{error.message}</Alert>
       </div>
     );
   } else if (isLoading) {
     return (<LoadingIndicator />);
   } else if (!isLoading && phones.length === 0) {
-    return (<div className="Phones-alert">
+    return (<div className={classes.PhonesAlert}>
       <Alert severity="info">No phones information available, please try adding a new phone through the phones API.</Alert>
     </div>)
   } else {
